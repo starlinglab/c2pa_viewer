@@ -12,6 +12,6 @@
     "vite": "^6.3.5"
   },
   "dependencies": {
-    "@contentauth/sdk": "0.8.12-alpha.10"
+    "@contentauth/sdk": "^0.8.12-alpha.10"
   }
 }
