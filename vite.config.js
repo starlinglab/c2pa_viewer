@@ -6,7 +6,7 @@ export default defineConfig({
   // Change this to match your repository name
   // For example, if your repo is username/my-project, use '/my-project/'
   // If your repo is username/username.github.io, use '/'
-  base: '/content-credentials-app/',
+  base: '/c2pa_viewer/',
   
   // Build configuration
   build: {
