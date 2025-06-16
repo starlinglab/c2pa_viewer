@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Credentials</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: white;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+        }
+        .logo-icon {
+            width: 24px;
+            height: 24px;
+            background-color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        .main-content {
+            display: flex;
+            margin-top: 30px;
+            min-height: 500px;
+        }
+        .upload-section {
+            flex: 1;
+            padding: 40px;
+        }
+        .upload-title {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+        .upload-description {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+        .note {
+            font-size: 14px;
+            color: #777;
+            margin-top: 30px;
+            line-height: 1.5;
+        }
+        .dropzone {
+            flex: 1;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            background-color: white;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .dropzone:hover {
+            border-color: #999;
+        }
+        .dropzone-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            opacity: 0.6;
+        }
+        .dropzone-text {
+            margin-bottom: 10px;
+            color: #0066cc;
+            font-weight: bold;
+        }
+        .dropzone-subtext {
+            color: #666;
+        }
+        .formats {
+            font-size: 12px;
+            color: #777;
+            margin-top: 10px;
+        }
+        
+        /* Details view (initially hidden) */
+        .details-view {
+            display: none;
+            width: 100%;
+        }
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 auto;
+            position: relative;
+            max-width: 800px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #ddd;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: -1;
+        }
+        .timeline-item {
+            margin-bottom: 30px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        .timeline-content {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            width: 260px;
+            position: relative;
+        }
+        .timeline-date {
+            background-color: rgba(255,255,255,0.9);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .timeline-date-icon {
+            width: 16px;
+            height: 16px;
+            background-color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 8px;
+        }
+        .timeline-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        .warning-badge {
+            background-color: #ff9800;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .details-panel {
+            width: 350px;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-left: 30px;
+            border: 1px solid #ddd;
+            align-self: flex-start;
+        }
+        .details-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .details-subheader {
+            font-size: 13px;
+            color: #777;
+            margin-bottom: 20px;
+        }
+        .details-section {
+            margin-bottom: 20px;
+        }
+        .details-section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .detail-item {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        .detail-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+        .detail-text {
+            font-size: 14px;
+        }
+        .detail-thumbnail {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+        }
+        .tools {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .tool-button {
+            background: none;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .file-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: white;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .file-name {
+            font-weight: bold;
+        }
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #777;
+        }
+        
+        /* File input styling */
+        #file-input {
+            display: none;
+        }
+        
+        /* Toggle between views */
+        .view-toggle {
+            cursor: pointer;
+            color: #0066cc;
+            text-decoration: underline;
+            font-size: 14px;
+            margin-top: 20px;
+            display: inline-block;
+        }
+        
+        .flex-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <div class="logo-icon">©</div>
+            <span>content credentials</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Initial Upload View -->
+        <div id="upload-view">
+            <div class="main-content">
+                <div class="upload-section">
+                    <h1 class="upload-title">Inspect content to dig deeper</h1>
+                    <p class="upload-description">
+                        Drag content into Verify to inspect its Content Credentials in detail and see how it has changed over time.
+                    </p>
+                    <p class="note">
+                        Content Credentials are still rolling out, so the content you choose to inspect may not have information to view.
+                    </p>
+                </div>
+                
+                <div class="dropzone" id="dropzone">
+                    <input type="file" id="file-input" accept="image/*">
+                    <svg class="dropzone-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <p class="dropzone-text">Select a file from your device</p>
+                    <p class="dropzone-subtext">or drag and drop anywhere</p>
+                    <p class="formats">
+                        Supported formats: AVI, AVIF, DNG, HEIC, HEIF, JPEG, M4A, MOV, MP3, MP4, PDF, PNG, SVG, TIFF, WAV, WebP
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details View (initially hidden) -->
+        <div id="details-view" class="details-view">
+            <div class="file-header">
+                <div class="file-name" id="file-name">C016.png</div>
+                <div class="file-info">
+                    <div class="logo-icon" style="width: 16px; height: 16px; font-size: 8px;">©</div>
+                    <span>Issued by <span id="txtIssuedBy"></span> on <span id="txtIssuedOn"></span></span>
+                </div>
+            </div>
+            
+            <div class="main-content">
+                <div class="flex-container">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-content">
+                                <div class="timeline-date">
+                                    <div class="timeline-date-icon">©</div>
+                                    Dec 20, 2022
+                                </div>
+                                <img src="" alt="Timeline Image" class="timeline-img" id="timeline-img-1">
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-content">
+                                <div class="timeline-date">
+                                    <div class="timeline-date-icon">©</div>
+                                    Dec 20, 2022
+                                </div>
+                                <img src="" alt="Timeline Image" class="timeline-img" id="timeline-img-2">
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-content">
+                                <div class="warning-badge">Unrecognized</div>
+                                <img src="" alt="Timeline Image" class="timeline-img" id="timeline-img-3">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="details-panel">
+                        <div class="details-header">
+                            Credit and usage
+                            <span style="transform: rotate(90deg); display: inline-block;">&#x276F;</span>
+                        </div>
+                        <div class="details-subheader">The producer chose to share the following info:</div>
+                        
+                        <div class="details-section">
+                            <div class="details-section-title">Produced by</div>
+                            <div class="detail-item">
+                                <div class="detail-icon">👤</div>
+                                <div class="detail-text" id="txtProducedBy">Starling Lab</div>
+                            </div>
+                        </div>
+                        
+                        <div class="details-section">
+                            <div class="details-section-title">Process</div>
+                            <div class="details-subheader">The app or device used to produce this content recorded the following info:</div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-icon">📱</div>
+                                <div class="detail-text" id="txtRecorder"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="details-section">
+                            <div class="details-section-title">Ingredients</div>
+                            <div class="detail-item">
+                                <img src="" alt="Thumbnail" class="detail-thumbnail" id="ingredient-thumbnail">
+                                <div class="detail-text">C016.png<br>© Dec 20, 2022</div>
+                            </div>
+                        </div>
+                        
+                        <div class="details-section">
+                            <div class="details-section-title">About this Content Credential</div>
+                            <div class="detail-item">
+                                <div class="detail-icon">📝</div>
+                                <div class="detail-text">Issued by<br><span id="txtIssuedBy2"></span></div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-icon">🕒</div>
+                                <div class="detail-text">Issued on<br><span id="txtIssuedOn2"></span></div>
+                            </div>
+                            <div class="detail-item" >
+                              <pre id="rawJson"></pre>  
+                          </div>
+                        </div>
+                        
+                        <div class="tools">
+                            <button class="tool-button">
+                                <span style="font-size: 16px;">+</span> Fit
+                            </button>
+                            <button class="tool-button">
+                                <span style="font-size: 16px;">-</span>
+                            </button>
+                            <button class="tool-button">
+                                <span>⚖️</span> Compare
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="#" class="view-toggle" id="back-to-upload">Select another file from your device</a>
+            </div>
+        </div>
+    </div>
+
+        <script type="module" src="/src/main.js"></script>
+
+</body>
+</html>
